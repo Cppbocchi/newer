@@ -157,7 +157,7 @@ function HomePage({ onNavigate }: HomePageProps) {
         </Row>
 
         {/* Recent Searches */}
-        <Card className="mb-6" style={{ borderRadius: '16px' }}>
+        <Card className="mt-6" style={{ marginTop: '16px', borderRadius: '16px' }}>
           <Title level={5} style={{ marginBottom: 16 }}>Recent Searches</Title>
           <Space direction="vertical" size="middle" className="w-full">
             {recentSearches.slice(0, 2).map((search) => (

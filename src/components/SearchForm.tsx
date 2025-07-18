@@ -52,7 +52,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
   };
 
   return (
-    <Card style={{ borderRadius: '16px', marginBottom: '24px' }}>
+    <Card style={{ borderRadius: '16px', marginBottom: '16px' }}>
       {/* Trip Type Buttons */}
       <div style={{ marginBottom: '24px' }}>
         <div style={{ display: 'flex', gap: '4px' }}>

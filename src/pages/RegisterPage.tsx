@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import '@ant-design/v5-patch-for-react-19';
 import { 
   Card, 
   Form, 
@@ -8,8 +9,8 @@ import {
   Divider,
   Upload,
   Avatar,
-  message,
   Checkbox,
+  message,
   Row,
   Col
 } from 'antd'
@@ -54,27 +55,30 @@ function RegisterPage({ onNavigate }: RegisterPageProps) {
 
   // 处理头像上传
   const handleAvatarChange: UploadProps['onChange'] = (info) => {
-    if (info.file.status === 'uploading') {
-      return
-    }
+    console.log('Avatar change info:', info.file)
     
-    if (info.file.status === 'done' || info.file.originFileObj) {
-      // 预览图片
-      const file = info.file.originFileObj || info.file
-      if (file) {
-        const reader = new FileReader()
-        reader.addEventListener('load', () => {
-          setAvatarUrl(reader.result as string)
-        })
-        reader.readAsDataURL(file as File)
-        setAvatarFile(info.file)
+    const file = info.file.originFileObj || info.file
+    if (file) {
+      // 简化处理，直接保存info.file并添加必要属性
+      const uploadFile = {
+        ...info.file,
+        status: 'done' as const,
+        originFileObj: file
       }
+      
+      const reader = new FileReader()
+      reader.addEventListener('load', () => {
+        setAvatarUrl(reader.result as string)
+      })
+      reader.readAsDataURL(file as File)
+      setAvatarFile(uploadFile as UploadFile)
+      console.log('Set avatar file:', uploadFile)
     }
   }
 
   // 头像上传前验证
   const beforeUpload = (file: File) => {
-    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'
+    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/jpg'
     if (!isJpgOrPng) {
       message.error('只能上传 JPG/PNG 格式的图片!')
       return false
@@ -84,7 +88,9 @@ function RegisterPage({ onNavigate }: RegisterPageProps) {
       message.error('图片大小不能超过 2MB!')
       return false
     }
-    return false // 阻止自动上传，我们手动处理
+    
+    // 返回false阻止自动上传，我们手动处理文件预览
+    return false
   }
 
   // 处理注册表单提交
@@ -94,9 +100,12 @@ function RegisterPage({ onNavigate }: RegisterPageProps) {
       
       let avatarFileName = ''
       
+      console.log('Current avatarFile state:', avatarFile)
+      
       // 如果有头像，先上传头像
       if (avatarFile?.originFileObj) {
         try {
+          console.log('Uploading avatar file:', avatarFile.originFileObj)
           const uploadResponse = await FileService.uploadAvatar(avatarFile.originFileObj as File)
           if (uploadResponse.data) {
             avatarFileName = uploadResponse.data.fileName
@@ -105,6 +114,8 @@ function RegisterPage({ onNavigate }: RegisterPageProps) {
           console.error('头像上传失败:', uploadError)
           message.warning('头像上传失败，将使用默认头像')
         }
+      } else {
+        console.log('No avatar file to upload')
       }
 
       // 准备注册数据
@@ -119,7 +130,7 @@ function RegisterPage({ onNavigate }: RegisterPageProps) {
       // 调用注册API
       const response = await AuthService.register(registerData)
 
-      if (response.status === 200) {
+      if (response.status === 0) {
         message.success('注册成功! 请登录您的账户')
         // 注册成功后跳转到登录页面
         if (onNavigate) {
@@ -173,8 +184,7 @@ function RegisterPage({ onNavigate }: RegisterPageProps) {
       <div className="flex-1 flex items-center justify-center p-4">
         <Card 
           className="w-full max-w-md shadow-lg border-0"
-          style={{ borderRadius: '24px' }}
-          bodyStyle={{ padding: '32px' }}
+          style={{ borderRadius: '24px', padding: '32px' }}
         >
           {/* Welcome Text */}
           <div className="text-center mb-8">

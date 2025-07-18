@@ -24,12 +24,14 @@ function Layout({ children }: LayoutProps) {
       setActiveTab('wallet')
     } else if (path === '/profile') {
       setActiveTab('profile')
+    } else if (path === '/travel') {
+      setActiveTab('travel')
     }
   }, [location.pathname])
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab)
-    navigate(`/${tab === 'home' ? '' : tab}`)
+    navigate(`/${tab}`)
   }
 
   return (

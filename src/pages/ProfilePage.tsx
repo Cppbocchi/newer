@@ -12,7 +12,10 @@ import {
   Col,
   Tag,
   Progress,
-  Modal
+  Form,
+  Modal,
+  Input,
+  message
 } from 'antd'
 import { 
   ArrowLeftOutlined,
@@ -31,17 +34,32 @@ import {
   TrophyOutlined,
   ExclamationCircleOutlined,
   ShareAltOutlined,
-  CrownOutlined
+  CrownOutlined,
+  LockOutlined,
+  EyeTwoTone,
+  EyeInvisibleOutlined,
+  MailOutlined,
+  PhoneOutlined
 } from '@ant-design/icons'
 import { mockUserProfile, mockUserStats, memberLevels } from '../data/userData'
 import { useAuth } from '../hooks/useAuth'
 import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import AuthService from '../services/authService'
 
 const { Title, Text } = Typography
 const { confirm } = Modal
 
 interface ProfilePageProps {
   onNavigate: (route: string) => void
+}
+
+interface UpdateValues {
+  name?: string;
+  email?: string;
+  phone?: string;
+  password?: string;
+  confirmPassword?: string;
 }
 
 // Mock 菜单项
@@ -123,7 +141,8 @@ const getNextLevelProgress = (currentLevel: string, points: number) => {
 function ProfilePage({ onNavigate }: ProfilePageProps) {
   const { logout, user } = useAuth()
   const navigate = useNavigate()
-  
+  const [form] = Form.useForm();
+  const [open, setOpen] = useState(false);
   // 使用真实用户数据或 fallback 到 mock 数据
   const userProfile = user!
   
@@ -134,8 +153,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
 
   const handleMenuClick = (key: string) => {
     switch (key) {
-      case 'personal-info':
-        console.log('Navigate to personal info')
+      case 'personal-info':      
+        setOpen(true)         
         break
       case 'payment':
         onNavigate('/wallet')
@@ -171,8 +190,135 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
     // 这里可以添加分享逻辑
   }
 
+  const onFinishUpdate = async (values: UpdateValues) => {
+    try {
+      const response = await AuthService.update(values)
+      if (response.status === 0) {
+        setOpen(false);
+        message.success('Profile updated successfully');
+      } else {
+        message.error(response.message || 'Failed to update profile');
+      }
+    } catch(error) {
+      console.error('An error occurred while updating profile:', error);
+      message.error('An error occurred while updating profile');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
+      <Modal
+        open={open}
+        title="Edit Profile"
+        okText="Save"
+        cancelText="Cancel"
+        okButtonProps={{ autoFocus: true, htmlType: 'submit' }}
+        onCancel={() => setOpen(false)}
+        destroyOnHidden
+        modalRender={(dom) => (
+          <Form
+            layout="vertical"
+            form={form}
+            name="user_profile_update_form"
+            clearOnDestroy
+            onFinish={(values) => onFinishUpdate(values)}
+          >
+            {dom}
+          </Form>
+        )}
+      >
+        <span style={{paddingLeft: '12px', fontWeight: 'bold' }}>Name</span>
+        <Form.Item
+          name="name"
+          rules={[
+            { required: true, message: 'Please enter your full name' },
+            { min: 2, message: 'Name must be at least 2 characters' }
+          ]}
+        >
+          <Input
+            defaultValue={userProfile.name}
+            prefix={<UserOutlined style={{ color: '#bfbfbf' }} />}
+            placeholder="Full Name"
+            style={{ borderRadius: '12px', height: '48px' }}
+          />
+        </Form.Item>
+
+        <span style={{paddingLeft: '12px', fontWeight: 'bold' }}>Email</span>
+        <Form.Item
+          name="email"
+          rules={[
+            { required: true, message: 'Please enter your email' },
+            { type: 'email', message: 'Please enter a valid email' }
+          ]}
+        >
+          <Input
+            defaultValue={userProfile.email}
+            prefix={<MailOutlined style={{ color: '#bfbfbf' }} />}
+            placeholder="Email Address"
+            style={{ borderRadius: '12px', height: '48px' }}
+          />
+        </Form.Item>
+
+        <span style={{paddingLeft: '12px', fontWeight: 'bold' }}>Phone</span>
+        <Form.Item
+          name="phone"
+          rules={[
+            { required: true, message: 'Please enter your phone number' },
+            { 
+              pattern: /^(\+\d{1,8}[- ]?)?\d{11}$/,
+              message: 'Please enter a valid phone number'
+            }
+          ]}
+        >
+          <Input
+            defaultValue={userProfile.phone}
+            prefix={<PhoneOutlined style={{ color: '#bfbfbf' }} />}
+            placeholder="Phone Number"
+            style={{ borderRadius: '12px', height: '48px' }}
+          />
+        </Form.Item>
+
+        <span style={{paddingLeft: '12px', fontWeight: 'bold' }}>Password</span>
+        <Form.Item
+          name="password"
+          rules={[
+            { required: true, message: '请输入密码' },
+            { min: 6, message: '密码至少需要6位' }
+          ]}
+        >
+          <Input.Password
+            prefix={<LockOutlined style={{ color: '#bfbfbf' }} />}
+            placeholder="New Password"
+            iconRender={visible => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+            style={{ borderRadius: '12px', height: '50px' }}
+          />
+        </Form.Item>
+
+        <span style={{paddingLeft: '12px', fontWeight: 'bold' }}>Confirm Password</span>
+        <Form.Item
+          name="confirmPassword"
+          dependencies={['password']}
+          rules={[
+            { required: true, message: 'Please confirm your password' },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                if (!value || getFieldValue('password') === value) {
+                  return Promise.resolve()
+                }
+                return Promise.reject(new Error('Passwords do not match'))
+              },
+            }),
+          ]}
+        >
+          <Input.Password
+            prefix={<LockOutlined style={{ color: '#bfbfbf' }} />}
+            placeholder="Confirm New Password"
+            iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+            style={{ borderRadius: '12px', height: '48px' }}
+          />
+        </Form.Item>
+      </Modal>
+
       {/* Header */}
       <Card 
         className="rounded-none shadow-sm sticky top-0 z-10" 

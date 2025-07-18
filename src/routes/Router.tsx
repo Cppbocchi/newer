@@ -8,7 +8,10 @@ import {
   WalletPage, 
   ProfilePage,
   LoginPage,
-  RegisterPage
+  RegisterPage,
+  DestinationDetailPage,
+  TravelHomepage,
+  BookingPage
 } from '../pages'
 
 const Router = () => {
@@ -30,12 +33,24 @@ const Router = () => {
             element={<HomePage onNavigate={handleNavigate} />} 
             />
             <Route 
+            path="/travel" 
+            element={<TravelHomepage onNavigate={handleNavigate} />} 
+            />
+            <Route 
             path="/search" 
             element={<SearchPage onNavigate={handleNavigate} />} 
             />
             <Route 
             path="/search-results" 
             element={<SearchResultsPage onNavigate={handleNavigate} />} 
+            />
+            <Route 
+            path="/destination/:id" 
+            element={<DestinationDetailPage onNavigate={handleNavigate} />} 
+            />
+            <Route 
+            path="/booking" 
+            element={<BookingPage onNavigate={handleNavigate} />} 
             />
             <Route 
             path="/bookings" 

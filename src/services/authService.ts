@@ -31,7 +31,6 @@ async function apiRequest<T>(
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)
     }
-    
     return await response.json()
   } catch (error) {
     console.error('API request failed:', error)
@@ -77,6 +76,14 @@ export class AuthService {
     return apiRequest<ApiResponse>('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify(loginData),
+    })
+  }
+
+  // 更新用户信息
+  static async update(updateData: Partial<UserRegisterDTO>): Promise<ApiResponse> {
+    return apiRequest<ApiResponse>('/api/user/update', {
+      method: 'PUT',
+      body: JSON.stringify(updateData),
     })
   }
 
@@ -128,7 +135,7 @@ export class FileService {
   static async uploadAvatar(file: File): Promise<ApiResponse<{ fileName: string; url: string }>> {
     const formData = new FormData()
     formData.append('avatar', file)
-    
+
     return apiRequest<ApiResponse<{ fileName: string; url: string }>>('/api/upload/avatar', {
       method: 'POST',
       body: formData,
