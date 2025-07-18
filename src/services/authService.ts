@@ -82,7 +82,7 @@ export class AuthService {
   // 更新用户信息
   static async update(updateData: Partial<UserRegisterDTO>): Promise<ApiResponse> {
     return apiRequest<ApiResponse>('/api/user/update', {
-      method: 'PUT',
+      method: 'POST',
       body: JSON.stringify(updateData),
     })
   }

@@ -1,5 +1,8 @@
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import ProtectedRoute from '../components/ProtectedRoute'
+import SpotDetail from '../components/SpotDetail'
+import Cart from '../components/Cart'
+import Destinations from '../components/Destinations'
 import { 
   HomePage, 
   SearchPage, 
@@ -45,8 +48,24 @@ const Router = () => {
             element={<SearchResultsPage onNavigate={handleNavigate} />} 
             />
             <Route 
+            path="/destinations" 
+            element={<Destinations />} 
+            />
+            <Route 
             path="/destination/:id" 
             element={<DestinationDetailPage onNavigate={handleNavigate} />} 
+            />
+            <Route 
+            path="/spot/:id" 
+            element={<SpotDetail />} 
+            />
+            <Route 
+            path="/cart" 
+            element={
+              <ProtectedRoute>
+                <Cart />
+              </ProtectedRoute>
+            } 
             />
             <Route 
             path="/booking" 

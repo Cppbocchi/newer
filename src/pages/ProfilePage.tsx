@@ -220,6 +220,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
             layout="vertical"
             form={form}
             name="user_profile_update_form"
+            initialValues={userProfile}
             clearOnDestroy
             onFinish={(values) => onFinishUpdate(values)}
           >
@@ -282,7 +283,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
         <Form.Item
           name="password"
           rules={[
-            { required: true, message: '请输入密码' },
+            { required: false, message: '请输入密码' },
             { min: 6, message: '密码至少需要6位' }
           ]}
         >
@@ -299,7 +300,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
           name="confirmPassword"
           dependencies={['password']}
           rules={[
-            { required: true, message: 'Please confirm your password' },
+            { required: false, message: 'Please confirm your password' },
             ({ getFieldValue }) => ({
               validator(_, value) {
                 if (!value || getFieldValue('password') === value) {

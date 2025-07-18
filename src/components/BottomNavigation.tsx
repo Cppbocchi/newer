@@ -4,8 +4,8 @@ import {
   UserOutlined,
   HomeOutlined,
   CreditCardOutlined,
-  WalletOutlined,
-  GlobalOutlined
+  GlobalOutlined,
+  EnvironmentOutlined
 } from '@ant-design/icons'
 import { 
   Plane
@@ -20,10 +20,10 @@ interface BottomNavigationProps {
 function BottomNavigation({ activeTab, onTabChange }: BottomNavigationProps) {
   const tabs = [
     { key: 'home', label: 'Home', icon: HomeOutlined, route: '/home' },
+    { key: 'destinations', label: 'Spots', icon: EnvironmentOutlined, route: '/destinations' },
     { key: 'travel', label: 'Travel', icon: GlobalOutlined, route: '/travel' },
     { key: 'search', label: 'Search', icon: SearchOutlined, route: '/search' },
-    { key: 'bookings', label: 'Bookings', icon: CreditCardOutlined, route: '/bookings' },
-    { key: 'wallet', label: 'Wallet', icon: WalletOutlined, route: '/wallet' },
+    { key: 'bookings', label: 'Orders', icon: CreditCardOutlined, route: '/bookings' },
     { key: 'profile', label: 'Profile', icon: UserOutlined, route: '/profile' }
   ]
 
