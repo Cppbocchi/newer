@@ -13,6 +13,7 @@ export interface User {
   memberPoints: number
   memberExpDate: string
   createdAt: string
+  role?: 'USER' | 'ADMIN'
 }
 
 // 认证上下文接口

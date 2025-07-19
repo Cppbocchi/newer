@@ -24,6 +24,7 @@ import {
 } from '@ant-design/icons'
 import { useAuth } from '../hooks/useAuth'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { AuthService } from '../services/authService'
 
 const { Title, Text, Link } = Typography
 
@@ -51,6 +52,17 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
   const handleSubmit = async (values: LoginFormData) => {
     try {
       setLoading(true)
+      
+      // 检查是否为管理员登录
+      if (values.email === 'admin' && values.password === '123456') {
+        // 存储管理员token
+        AuthService.setAuthToken('admin-token-' + Date.now())
+        
+        message.success('管理员登录成功！')
+        navigate('/admin/dashboard', { replace: true })
+        return
+      }
+      
       const success = await login(values.email, values.password)
       
       if (success) {
@@ -141,13 +153,29 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
             <Form.Item
               name="email"
               rules={[
-                { required: true, message: '请输入邮箱地址' },
-                { type: 'email', message: '请输入有效的邮箱地址' }
+                { required: true, message: '请输入邮箱地址或用户名' },
+                {
+                  validator: (_, value) => {
+                    if (!value) {
+                      return Promise.resolve()
+                    }
+                    // 如果是admin用户名，跳过邮箱验证
+                    if (value === 'admin') {
+                      return Promise.resolve()
+                    }
+                    // 其他情况验证邮箱格式
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+                    if (emailRegex.test(value)) {
+                      return Promise.resolve()
+                    }
+                    return Promise.reject(new Error('请输入有效的邮箱地址'))
+                  }
+                }
               ]}
             >
               <Input
                 prefix={<MailOutlined style={{ color: '#bfbfbf' }} />}
-                placeholder="邮箱地址"
+                placeholder="邮箱地址或用户名"
                 style={{ borderRadius: '12px', height: '50px' }}
               />
             </Form.Item>
@@ -177,6 +205,20 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
                 <Link style={{ color: '#1890ff' }}>忘记密码？</Link>
               </Col>
             </Row>
+
+            {/* 管理员提示 */}
+            <div style={{
+              background: 'linear-gradient(135deg, #e6f7ff 0%, #f0f5ff 100%)',
+              border: '1px solid #91d5ff',
+              borderRadius: '8px',
+              padding: '12px',
+              marginBottom: '20px',
+              textAlign: 'center'
+            }}>
+              <Text type="secondary" style={{ fontSize: '13px' }}>
+                💡 管理员账号：admin / 密码：123456
+              </Text>
+            </div>
 
             <Form.Item>
               <Button
