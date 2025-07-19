@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { ShoppingCart, Search, User, Bell } from 'lucide-react'
 import { cartService } from '../services/cartService'
 import { useAuth } from '../hooks/useAuth'
+import WalletBalanceButton from './WalletBalanceButton'
 
 const TopNavigation: React.FC = () => {
   const navigate = useNavigate()
@@ -90,7 +91,16 @@ const TopNavigation: React.FC = () => {
           </div>
 
           {/* 右侧操作按钮 */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-1">
+            {/* 钱包余额 - 只对已登录用户显示 */}
+            {user && (
+              <WalletBalanceButton 
+                onClick={() => navigate('/wallet')}
+                showLabel={false}
+                size="small"
+              />
+            )}
+
             {/* 搜索按钮 */}
             <button
               onClick={handleSearchClick}
