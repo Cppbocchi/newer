@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Layout, Menu, Button, Avatar, Dropdown, Space, Typography } from 'antd'
+import { Layout, Menu, Button, Avatar, Dropdown, Space, Typography, Modal } from 'antd'
 import {
   DashboardOutlined,
   UserOutlined,
@@ -10,13 +10,15 @@ import {
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  SettingOutlined
+  SettingOutlined,
+  ExclamationCircleOutlined
 } from '@ant-design/icons'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { AuthService } from '../services/authService'
+import { useAuth } from '../hooks/useAuth'
 
 const { Header, Sider, Content } = Layout
 const { Title } = Typography
+const { confirm } = Modal
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -26,6 +28,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
+  const { logout } = useAuth()
 
   const menuItems = [
     {
@@ -64,9 +67,21 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     navigate(key)
   }
 
-  const handleLogout = () => {
-    AuthService.clearAuthToken()
-    navigate('/login')
+  const handleLogout = async () => {
+    console.log('管理员退出登录')
+    await logout()
+    navigate('/login', { replace: true })
+  }
+
+  const showLogoutConfirm = () => {
+    confirm({
+      title: '确定要退出登录吗?',
+      icon: <ExclamationCircleOutlined />,
+      content: '退出后您需要重新登录才能访问管理员功能',
+      okText: '确定退出',
+      cancelText: '取消',
+      onOk: handleLogout
+    })
   }
 
   const userMenuItems = [
@@ -79,7 +94,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       key: 'logout',
       icon: <LogoutOutlined />,
       label: '退出登录',
-      onClick: handleLogout,
     },
   ]
 
@@ -151,8 +165,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             menu={{ 
               items: userMenuItems,
               onClick: ({ key }) => {
-                const item = userMenuItems.find(item => item.key === key)
-                if (item?.onClick) item.onClick()
+                if (key === 'logout') {
+                  showLogoutConfirm()
+                } else if (key === 'settings') {
+                  console.log('打开设置页面')
+                  // 可以在这里添加设置页面的导航逻辑
+                }
               }
             }}
             placement="bottomRight"

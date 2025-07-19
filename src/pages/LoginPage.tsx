@@ -24,7 +24,6 @@ import {
 } from '@ant-design/icons'
 import { useAuth } from '../hooks/useAuth'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { AuthService } from '../services/authService'
 
 const { Title, Text, Link } = Typography
 
@@ -53,23 +52,25 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
     try {
       setLoading(true)
       
-      // 检查是否为管理员登录
-      if (values.email === 'admin' && values.password === '123456') {
-        // 存储管理员token
-        AuthService.setAuthToken('admin-token-' + Date.now())
-        
-        message.success('管理员登录成功！')
-        navigate('/admin/dashboard', { replace: true })
-        return
-      }
-      
       const success = await login(values.email, values.password)
       
       if (success) {
         message.success('登录成功！')
-        navigate(from, { replace: true })
+        
+        // 检查是否是管理员登录，决定跳转路径
+        if (values.email === 'admin' && values.password === '123456') {
+          navigate('/admin/dashboard', { replace: true })
+        } else {
+          // 检查是否是从管理员页面重定向过来的
+          const isFromAdmin = (location.state as { from?: { pathname: string }, isAdmin?: boolean })?.isAdmin
+          if (isFromAdmin) {
+            navigate('/admin/dashboard', { replace: true })
+          } else {
+            navigate(from, { replace: true })
+          }
+        }
       } else {
-        message.error('登录失败，请检查邮箱和密码')
+        message.error('登录失败，请检查用户名和密码')
       }
     } catch (error) {
       console.error('登录错误:', error)

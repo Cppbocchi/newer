@@ -41,7 +41,7 @@ import {
   MailOutlined,
   PhoneOutlined
 } from '@ant-design/icons'
-import { mockUserProfile, mockUserStats, memberLevels } from '../data/userData'
+import { mockUserProfile, memberLevels } from '../data/userData'
 import { useAuth } from '../hooks/useAuth'
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
@@ -143,6 +143,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
   const navigate = useNavigate()
   const [form] = Form.useForm();
   const [open, setOpen] = useState(false);
+  const [personalInfoOpen, setPersonalInfoOpen] = useState(false);
   // 使用真实用户数据或 fallback 到 mock 数据
   const userProfile = user!
   
@@ -154,7 +155,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
   const handleMenuClick = (key: string) => {
     switch (key) {
       case 'personal-info':      
-        setOpen(true)         
+        setPersonalInfoOpen(true)         
         break
       case 'payment':
         onNavigate('/wallet')
@@ -320,6 +321,172 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
         </Form.Item>
       </Modal>
 
+      {/* Personal Information Modal */}
+      <Modal
+        open={personalInfoOpen}
+        title={
+          <div className="flex items-center" style={{ fontSize: '18px', fontWeight: 600 }}>
+            <UserOutlined className="mr-3" style={{ fontSize: '20px', color: '#1890ff' }} />
+            个人信息
+          </div>
+        }
+        footer={null}
+        onCancel={() => setPersonalInfoOpen(false)}
+        width={650}
+        styles={{
+          content: { padding: 0 },
+          body: { padding: '32px' }
+        }}
+      >
+        <div className="py-6">
+          <Row gutter={[28, 32]}>
+            {/* 基本信息区域 */}
+            <Col span={24}>
+              <div className="mb-12">
+                <div className="flex items-center mb-8">
+                  <div className="w-1 h-6 bg-blue-500 mr-4"></div>
+                  <Text strong style={{ fontSize: '16px', color: '#262626' }}>基本信息</Text>
+                </div>
+                <Row gutter={[24, 24]}>
+                  <Col span={12}>
+                    <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-6 rounded-xl border-l-4 border-blue-400">
+                      <Text type="secondary" style={{ fontSize: '13px', fontWeight: 500 }} className="block mb-4">
+                        用户名
+                      </Text>
+                      <Text strong style={{ fontSize: '17px', color: '#1f2937', lineHeight: '1.5' }}>
+                        {userProfile.name}
+                      </Text>
+                    </div>
+                  </Col>
+                  <Col span={12}>
+                    <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-6 rounded-xl border-l-4 border-purple-400">
+                      <Text type="secondary" style={{ fontSize: '13px', fontWeight: 500 }} className="block mb-4">
+                        电子邮箱
+                      </Text>
+                      <Text strong style={{ fontSize: '15px', color: '#1f2937', wordBreak: 'break-all', lineHeight: '1.5' }}>
+                        {userProfile.email}
+                      </Text>
+                    </div>
+                  </Col>
+                  <Col span={12}>
+                    <div className="bg-gradient-to-r from-green-50 to-green-100 p-6 rounded-xl border-l-4 border-green-400">
+                      <Text type="secondary" style={{ fontSize: '13px', fontWeight: 500 }} className="block mb-4">
+                        手机号码
+                      </Text>
+                      <Text strong style={{ fontSize: '17px', color: '#1f2937', lineHeight: '1.5' }}>
+                        {userProfile.phone || '未设置'}
+                      </Text>
+                    </div>
+                  </Col>
+                  <Col span={12}>
+                    <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 p-6 rounded-xl border-l-4 border-yellow-400">
+                      <Text type="secondary" style={{ fontSize: '13px', fontWeight: 500 }} className="block mb-4">
+                        会员等级
+                      </Text>
+                      <div className="flex items-center">
+                        <TrophyOutlined style={{ color: '#faad14', marginRight: '10px', fontSize: '18px' }} />
+                        <Text strong style={{ fontSize: '17px', color: '#1f2937', lineHeight: '1.5' }}>
+                          {userProfile.memberLevel}
+                        </Text>
+                      </div>
+                    </div>
+                  </Col>
+                </Row>
+              </div>
+            </Col>
+
+            {/* 账户数据区域 */}
+            <Col span={24}>
+              <div>
+                <div className="flex items-center mb-8">
+                  <div className="w-1 h-6 bg-green-500 mr-4"></div>
+                  <Text strong style={{ fontSize: '16px', color: '#262626' }}>账户数据</Text>
+                </div>
+                <Row gutter={[24, 24]}>
+                  <Col span={8}>
+                    <div className="bg-white p-7 rounded-xl border border-blue-200 shadow-sm hover:shadow-md transition-shadow">
+                      <div className="text-center">
+                        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-5">
+                          <Text style={{ fontSize: '24px' }}>📦</Text>
+                        </div>
+                        <Text type="secondary" style={{ fontSize: '13px', fontWeight: 500 }}>
+                          总订单数
+                        </Text>
+                        <div className="mt-4">
+                          <Text strong style={{ fontSize: '26px', color: '#1890ff', lineHeight: '1.2' }}>
+                            {userProfile.totalOrders || 0}
+                          </Text>
+                          <Text style={{ fontSize: '14px', color: '#666', marginLeft: '4px' }}>单</Text>
+                        </div>
+                      </div>
+                    </div>
+                  </Col>
+                  <Col span={8}>
+                    <div className="bg-white p-7 rounded-xl border border-orange-200 shadow-sm hover:shadow-md transition-shadow">
+                      <div className="text-center">
+                        <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-5">
+                          <Text style={{ fontSize: '24px' }}>⭐</Text>
+                        </div>
+                        <Text type="secondary" style={{ fontSize: '13px', fontWeight: 500 }}>
+                          积分余额
+                        </Text>
+                        <div className="mt-4">
+                          <Text strong style={{ fontSize: '26px', color: '#fa8c16', lineHeight: '1.2' }}>
+                            {userProfile.memberPoints || 0}
+                          </Text>
+                          <Text style={{ fontSize: '14px', color: '#666', marginLeft: '4px' }}>分</Text>
+                        </div>
+                      </div>
+                    </div>
+                  </Col>
+                  <Col span={8}>
+                    <div className="bg-white p-7 rounded-xl border border-green-200 shadow-sm hover:shadow-md transition-shadow">
+                      <div className="text-center">
+                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
+                          <Text style={{ fontSize: '24px' }}>💰</Text>
+                        </div>
+                        <Text type="secondary" style={{ fontSize: '13px', fontWeight: 500 }}>
+                          账户余额
+                        </Text>
+                        <div className="mt-4">
+                          <Text strong style={{ fontSize: '26px', color: '#52c41a', lineHeight: '1.2' }}>
+                            ¥{(userProfile.balance || 0).toFixed(2)}
+                          </Text>
+                        </div>
+                      </div>
+                    </div>
+                  </Col>
+                </Row>
+              </div>
+            </Col>
+          </Row>
+          
+          {/* Edit Button */}
+          <div className="mt-12 text-center">
+            <Button 
+              type="primary" 
+              icon={<EditOutlined />}
+              onClick={() => {
+                setPersonalInfoOpen(false)
+                setOpen(true)
+              }}
+              size="large"
+              style={{ 
+                borderRadius: '10px',
+                height: '48px',
+                paddingLeft: '36px',
+                paddingRight: '36px',
+                fontSize: '15px',
+                fontWeight: 500,
+                boxShadow: '0 4px 12px rgba(24, 144, 255, 0.3)'
+              }}
+            >
+              编辑个人信息
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
       {/* Header */}
       <Card 
         className="rounded-none shadow-sm sticky top-0 z-10" 
@@ -343,7 +510,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
           <Button 
             type="text" 
             icon={<EditOutlined />} 
-            onClick={() => handleMenuClick('personal-info')}
+            onClick={() => setOpen(true)}
           />
         </div>
       </Card>
@@ -420,23 +587,12 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
             <Row gutter={16} className="mt-4">
               <Col span={6}>
                 <div className="text-center">
-                  <div className="text-2xl mb-1">✈️</div>
+                  <div className="text-2xl mb-1">📦</div>
                   <div className="font-semibold text-lg text-gray-800">
-                    {mockUserStats.totalTrips}
+                    {userProfile.totalOrders || 0}
                   </div>
                   <Text type="secondary" className="text-xs">
-                    Trips
-                  </Text>
-                </div>
-              </Col>
-              <Col span={6}>
-                <div className="text-center">
-                  <div className="text-2xl mb-1">🌍</div>
-                  <div className="font-semibold text-lg text-gray-800">
-                    {mockUserStats.countriesVisited}
-                  </div>
-                  <Text type="secondary" className="text-xs">
-                    Countries
+                    Orders
                   </Text>
                 </div>
               </Col>
@@ -444,7 +600,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                 <div className="text-center">
                   <div className="text-2xl mb-1">⭐</div>
                   <div className="font-semibold text-lg text-gray-800">
-                    {(mockUserStats.totalPoints / 1000).toFixed(1)}K
+                    {userProfile.memberPoints || 0}
                   </div>
                   <Text type="secondary" className="text-xs">
                     Points
@@ -453,12 +609,23 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
               </Col>
               <Col span={6}>
                 <div className="text-center">
-                  <div className="text-2xl mb-1">📝</div>
+                  <div className="text-2xl mb-1">💰</div>
                   <div className="font-semibold text-lg text-gray-800">
-                    {mockUserStats.reviewsWritten}
+                    ¥{(userProfile.balance || 0).toFixed(0)}
                   </div>
                   <Text type="secondary" className="text-xs">
-                    Reviews
+                    Balance
+                  </Text>
+                </div>
+              </Col>
+              <Col span={6}>
+                <div className="text-center">
+                  <div className="text-2xl mb-1">🏆</div>
+                  <div className="font-semibold text-lg text-gray-800">
+                    {userProfile.memberLevel}
+                  </div>
+                  <Text type="secondary" className="text-xs">
+                    Level
                   </Text>
                 </div>
               </Col>
@@ -472,7 +639,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                   block 
                   icon={<EditOutlined />}
                   style={{ borderRadius: '12px', height: '40px' }}
-                  onClick={() => handleMenuClick('personal-info')}
+                  onClick={() => setOpen(true)}
                 >
                   Edit Profile
                 </Button>

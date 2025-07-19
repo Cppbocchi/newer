@@ -11,6 +11,8 @@ export interface User {
   avatar?: string
   memberLevel: string
   memberPoints: number
+  balance: number
+  totalOrders: number
   memberExpDate: string
   createdAt: string
   role?: 'USER' | 'ADMIN'
@@ -46,13 +48,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const initAuth = async () => {
       const token = AuthService.getAuthToken()
+      
       if (token) {
         try {
-          const response = await AuthService.getCurrentUser(token)
-          if (response.data) {
-            setUser(response.data as User)
+          // 检查是否是管理员token
+          if (token.startsWith('admin-token-')) {
+            // 恢复管理员用户状态
+            const adminUser: User = {
+              id: 'admin-001',
+              name: 'admin',
+              email: 'admin@admin.com',
+              phone: '13800138000',
+              avatar: '',
+              memberLevel: 'ADMIN',
+              memberPoints: 0,
+              balance: 0,
+              totalOrders: 0,
+              memberExpDate: '2099-12-31',
+              createdAt: new Date().toISOString(),
+              role: 'ADMIN'
+            }
+            console.log('恢复管理员状态:', adminUser)
+            setUser(adminUser)
           } else {
-            AuthService.clearAuthToken()
+            // 普通用户token验证
+            const response = await AuthService.getCurrentUser(token)
+            if (response.data) {
+              setUser(response.data as User)
+            } else {
+              AuthService.clearAuthToken()
+            }
           }
         } catch (error) {
           console.error('认证初始化失败:', error)
@@ -69,6 +94,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       setIsLoading(true)
+      
+      // 检查是否是管理员账户
+      if (email === 'admin' && password === '123456') {
+        // 创建管理员用户对象
+        const adminUser: User = {
+          id: 'admin-001',
+          name: 'admin',
+          email: 'admin@admin.com',
+          phone: '13800138000',
+          avatar: '',
+          memberLevel: 'ADMIN',
+          memberPoints: 0,
+          balance: 0,
+          totalOrders: 0,
+          memberExpDate: '2099-12-31',
+          createdAt: new Date().toISOString(),
+          role: 'ADMIN'
+        }
+        
+        // 设置一个管理员专用的token
+        AuthService.setAuthToken('admin-token-' + Date.now())
+        setUser(adminUser)
+        console.log('管理员登录成功:', adminUser)
+        return true
+      }
+      
+      // 普通用户登录逻辑
       const response = await AuthService.login({ email, password }) 
       if (response.status === 200 && response.token) {
         AuthService.setAuthToken(response.token)

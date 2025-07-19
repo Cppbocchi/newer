@@ -6,7 +6,8 @@ export interface UserProfile {
   avatar: string
   memberLevel: 'Bronze' | 'Silver' | 'Gold' | 'Platinum'
   joinDate: string
-  totalTrips: number
+  totalOrders: number
+  balance: number
   memberPoints: number
   verified: boolean
   preferences: {
@@ -21,7 +22,7 @@ export interface UserProfile {
 }
 
 export interface UserStats {
-  totalTrips: number
+  totalOrders: number
   countriesVisited: number
   totalPoints: number
   reviewsWritten: number
@@ -56,7 +57,8 @@ export const mockUserProfile: UserProfile = {
   avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
   memberLevel: 'Gold',
   joinDate: '2022-03-15',
-  totalTrips: 24,
+  totalOrders: 24,
+  balance: 1500.00,
   memberPoints: 12840,
   verified: true,
   preferences: {
@@ -71,7 +73,7 @@ export const mockUserProfile: UserProfile = {
 }
 
 export const mockUserStats: UserStats = {
-  totalTrips: 24,
+  totalOrders: 24,
   countriesVisited: 8,
   totalPoints: 12840,
   reviewsWritten: 18,
